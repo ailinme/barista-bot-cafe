@@ -1,30 +1,39 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:barista_bot_cafe/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('Barista Bot Tests', () {
+    
+    testWidgets('App inicia correctamente', (WidgetTester tester) async {
+      await tester.pumpWidget(const MyApp());
+      
+      expect(find.byType(MaterialApp), findsOneWidget);
+      expect(find.text('Barista Bot Café'), findsOneWidget);
+    });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    testWidgets('Botón de orden existe', (WidgetTester tester) async {
+      await tester.pumpWidget(const MyApp());
+      
+      expect(find.byType(ElevatedButton), findsWidgets);
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    testWidgets('Muestra mensaje de bienvenida', (WidgetTester tester) async {
+      await tester.pumpWidget(const MyApp());
+      
+      expect(find.text('Bienvenido al Barista Bot'), findsWidgets);
+    });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    testWidgets('Procesa una orden correctamente', (WidgetTester tester) async {
+      await tester.pumpWidget(const MyApp());
+      await tester.pumpAndSettle();
+      
+      // Encuentra y presiona el botón de orden
+      await tester.tap(find.byType(ElevatedButton).first);
+      await tester.pumpAndSettle();
+      
+      // Verifica que se procese la orden
+      expect(find.text('Orden procesada'), findsWidgets);
+    });
   });
 }
