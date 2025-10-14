@@ -12,6 +12,7 @@ void main() {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+  //Espacio intencional para probar el CI
   
   // Configurar estilo de la barra de estado
   SystemChrome.setSystemUIOverlayStyle(

@@ -18,7 +18,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   final List<OnboardingData> _pages = [
     OnboardingData(
-      title: 'Bienvenido a\nBaristaBot',
+      title: 'Bienvenido a\nBaristaBot ☕',
       description: AppStrings.welcomeSubtitle,
       icon: Icons.coffee,
     ),
