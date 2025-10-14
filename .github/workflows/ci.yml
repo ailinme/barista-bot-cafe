@@ -1,5 +1,7 @@
 name: CI Pipeline - Barista Bot Flutter
 
+# espacio para comentarios
+# Este workflow configura un pipeline de CI para una aplicación Flutter.
 on:
   push:
     branches: [ main, develop, master ]
