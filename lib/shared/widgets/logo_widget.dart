@@ -3,6 +3,7 @@ import '../../core/constants/colors.dart';
 
 class LogoWidget extends StatelessWidget {
   final double size;
+  //Esapcio intencial para mostrar el texto
   final bool showText;
   final String? subtitle;
 
