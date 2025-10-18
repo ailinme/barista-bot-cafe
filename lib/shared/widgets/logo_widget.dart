@@ -31,6 +31,7 @@ class LogoWidget extends StatelessWidget {
             color: AppColors.textLight,
           ),
         ),
+        //pone el icono dentro de un circulo
         if (showText) ...[
           const SizedBox(height: 16),
           const Text(
@@ -56,3 +57,4 @@ class LogoWidget extends StatelessWidget {
     );
   }
 }
+//¿Qué hace? Muestra el texto "BaristaBot" solo si showText es true. Así el mismo widget puede mostrar logo con texto o sin texto.

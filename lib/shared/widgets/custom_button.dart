@@ -7,7 +7,7 @@ class CustomButton extends StatelessWidget {
   final bool isLoading;
   final Color? backgroundColor;
   final Color? textColor;
-
+//defone los parametros de los botones
   const CustomButton({
     Key? key,
     required this.text,
