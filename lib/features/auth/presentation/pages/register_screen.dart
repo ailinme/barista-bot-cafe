@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
+import 'package:barista_bot_cafe/shared/pages/document_viewer.dart';
 import '../../../../core/constants/colors.dart';
 import '../../../../core/constants/strings.dart';
 import '../../../../shared/widgets/custom_button.dart';
@@ -194,8 +196,63 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 24),
-                        
+                        const SizedBox(height: 16),
+
+                        // Enlaces a documentos de privacidad y datos personales
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: RichText(
+                            text: TextSpan(
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: AppColors.textSecondary,
+                              ),
+                              children: [
+                                const TextSpan(text: 'Revisa: '),
+                                TextSpan(
+                                  text: 'Protección de datos personales',
+                                  style: const TextStyle(
+                                    color: AppColors.primary,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => const DocumentViewerPage(
+                                            title: 'Protección de datos personales',
+                                            assetPath: 'assets/docs/datos_personales.md',
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                ),
+                                const TextSpan(text: ' y '),
+                                TextSpan(
+                                  text: 'Política de privacidad',
+                                  style: const TextStyle(
+                                    color: AppColors.primary,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => const DocumentViewerPage(
+                                            title: 'Política de privacidad',
+                                            assetPath: 'assets/docs/privacidad.md',
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                ),
+                                const TextSpan(text: '.'),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
                         // Checkbox de términos
                         Row(
                           children: [

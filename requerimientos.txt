@@ -1,0 +1,502 @@
+
+You said:
+ayudame con esto, no sé ni por donde empezr. dime el paso a paso:Instrucciones
+Siguiendo las recomendaciones de los lineamientos en la protección de datos personales que esta en el material adicional hacer por equipo: 
+
+Crear la pantalla de registro en el proyecto móvil que contenga los apartados para  que el usuario pueda aceptar el documento de protección de datos personales y la política de privacidad, debe poder hacer clic para ver estos documentos y la casilla de verificación para aprobarla.
+
+Actualizar su repositorio con el código agregado y ejecutar la integración.
+
+Subir un video corto que muestre el proceso de registro y la casilla de verificación con estos documentos, mostrando que al hacer clic en el texto se abre cada documento (protección de datos personales y la política de privacidad).
+
+Subir en su carpeta de equipo la documentación referente a la protección de datos personales y la política de privacidad en base a los puntos anteriores.          
+1) Estructura de archivos
+
+Crea esta estructura:
+
+/lib/
+  screens/
+    register_screen.dart
+    document_viewer.dart
+/assets/docs/
+  privacidad.md
+  datos_personales.md
+/pubspec.yaml
+
+
+En pubspec.yaml añade dependencias y assets:
+
+name: tu_app
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_markdown: ^0.6.18
+  # (Opcional si ya las tienes)
+  firebase_auth: ^5.1.4
+  firebase_database: ^11.0.3
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/docs/privacidad.md
+    - assets/docs/datos_personales.md
+
+
+flutter_markdown te permite abrir y renderizar los documentos dentro de la app, sin WebView.
+
+2) Pantalla para ver documentos
+
+lib/screens/document_viewer.dart
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_markdown/flutter_markdown.dart';
+
+class DocumentViewerPage extends StatefulWidget {
+  final String title;
+  final String assetPath; // p. ej. "assets/docs/privacidad.md"
+
+  const DocumentViewerPage({
+    super.key,
+    required this.title,
+    required this.assetPath,
+  });
+
+  @override
+  State<DocumentViewerPage> createState() => _DocumentViewerPageState();
+}
+
+class _DocumentViewerPageState extends State<DocumentViewerPage> {
+  String _content = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final text = await rootBundle.loadString(widget.assetPath);
+    if (mounted) {
+      setState(() => _content = text);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.title)),
+      body: _content.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : Markdown(
+              data: _content,
+              padding: const EdgeInsets.all(16),
+            ),
+    );
+  }
+}
+
+3) Pantalla de Registro con consentimiento
+
+lib/screens/register_screen.dart
+
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+// Si usas Firebase:
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'document_viewer.dart';
+
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _passCtrl = TextEditingController();
+  bool _accepted = false;
+
+  // Versiona tus documentos. Útil para auditoría.
+  static const String kPrivacyVersion = '1.0 (2025-10-20)';
+  static const String kDataProtectVersion = '1.0 (2025-10-20)';
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _emailCtrl.dispose();
+    _passCtrl.dispose();
+    super.dispose();
+  }
+
+  void _openDoc(String title, String asset) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => DocumentViewerPage(title: title, assetPath: asset),
+    ));
+  }
+
+  Future<void> _onRegister() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (!_accepted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Debes aceptar los documentos para continuar.')),
+      );
+      return;
+    }
+
+    // 1) Crear usuario (si tu flujo lo contempla aquí)
+    // Nota: Ajusta try/catch y manejo de errores como prefieras.
+    UserCredential? cred;
+    try {
+      cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailCtrl.text.trim(),
+        password: _passCtrl.text.trim(),
+      );
+      await cred.user?.updateDisplayName(_nameCtrl.text.trim());
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al registrar: $e')),
+      );
+      return;
+    }
+
+    // 2) Guardar consentimiento en RTDB
+    try {
+      final uid = cred.user!.uid;
+      final db = FirebaseDatabase.instance.ref('users/$uid/consents');
+      final now = DateTime.now().toUtc().toIso8601String();
+
+      await db.set({
+        'accepted': true,
+        'acceptedAt': now,
+        'privacyPolicyVersion': kPrivacyVersion,
+        'dataProtectionVersion': kDataProtectVersion,
+      });
+    } catch (e) {
+      // No bloquea el registro, pero deja trazabilidad
+      debugPrint('Error guardando consentimiento: $e');
+    }
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Registro exitoso')),
+    );
+
+    // Navega a tu Home
+    // Navigator.of(context).pushReplacement(...);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final linkStyle = TextStyle(
+      color: Theme.of(context).colorScheme.primary,
+      decoration: TextDecoration.underline,
+    );
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Registro')),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _nameCtrl,
+                  decoration: const InputDecoration(labelText: 'Nombre completo'),
+                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Requerido' : null,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _emailCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(labelText: 'Correo electrónico'),
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return 'Requerido';
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v.trim())) return 'Correo no válido';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _passCtrl,
+                  decoration: const InputDecoration(labelText: 'Contraseña'),
+                  obscureText: true,
+                  validator: (v) => (v != null && v.length >= 6) ? null : 'Mínimo 6 caracteres',
+                ),
+                const SizedBox(height: 20),
+
+                // Texto con enlaces clicables a ambos documentos
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: RichText(
+                    text: TextSpan(
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      children: [
+                        const TextSpan(text: 'Revisa: '),
+                        TextSpan(
+                          text: 'Protección de datos personales',
+                          style: linkStyle,
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => _openDoc('Protección de datos personales', 'assets/docs/datos_personales.md'),
+                        ),
+                        const TextSpan(text: ' y '),
+                        TextSpan(
+                          text: 'Política de privacidad',
+                          style: linkStyle,
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => _openDoc('Política de privacidad', 'assets/docs/privacidad.md'),
+                        ),
+                        const TextSpan(text: '.'),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                CheckboxListTile(
+                  value: _accepted,
+                  onChanged: (v) => setState(() => _accepted = v ?? false),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text(
+                    'He leído y acepto la Protección de datos personales y la Política de privacidad',
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: _accepted ? _onRegister : null,
+                    child: const Text('Crear cuenta'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+Requisitos cumplidos aquí:
+
+El usuario puede hacer clic para ver cada documento.
+
+Hay casilla de verificación para aprobarlos.
+
+El botón de registro se habilita al aceptarlos.
+
+Se guarda en RTDB la aceptación con versionado.
+
+4) Rutas / Navegación
+
+Asegúrate de apuntar tu flujo de autenticación a RegisterScreen() donde corresponda (e.g., desde tu pantalla de Login cuando el usuario elija “Crear cuenta”).
+
+5) Plantillas de documentos (colócalas en /assets/docs/)
+
+datos_personales.md (Protección de datos personales)
+
+# Aviso sobre Protección de Datos Personales
+**Versión:** 1.0 — 20/oct/2025
+
+## 1. Identidad y domicilio del Responsable
+[Nombre/Razón social], con domicilio en [Domicilio completo], es responsable del tratamiento de sus datos personales.
+
+## 2. Finalidades del tratamiento
+- Crear y administrar su cuenta de usuario.
+- Gestionar compras, facturación y soporte.
+- Mejorar la seguridad y calidad del servicio.
+- (Opcional) Enviar comunicaciones y promociones (con su consentimiento adicional).
+
+## 3. Datos personales tratados
+- Identificativos: nombre, correo, teléfono.
+- Transaccionales: historial de compras, medios de pago (tokenizados por proveedor).
+- Técnicos: identificadores de dispositivo, registros de uso (logs).
+
+## 4. Fundamento
+Tratamos datos conforme a la LFPDPPP (México) y su reglamento, y demás normatividad aplicable.
+
+## 5. Transferencias y encargados
+Podremos compartir datos con encargados que proveen servicios (p. ej., hosting, pagos, mensajería), con obligaciones de confidencialidad y seguridad.
+
+## 6. Derechos ARCO y revocación
+Usted puede ejercer Acceso, Rectificación, Cancelación y Oposición (ARCO) y revocar su consentimiento escribiendo a: [correo@empresa.com]. Responderemos en los plazos legales.
+
+## 7. Conservación y seguridad
+Conservamos los datos el tiempo necesario para las finalidades indicadas y aplicamos medidas técnicas y organizativas de seguridad.
+
+## 8. Cambios al aviso
+Cualquier modificación se publicará en esta app o en [URL].
+
+## 9. Contacto
+Para dudas sobre privacidad: [correo@empresa.com]
+
+
+privacidad.md (Política de privacidad)
+
+# Política de Privacidad
+**Versión:** 1.0 — 20/oct/2025
+
+## Alcance
+Esta política describe cómo recabamos, usamos y protegemos su información cuando usa nuestra app.
+
+## Información que recabamos
+- **Datos que usted proporciona** (registro, compras, soporte).
+- **Datos automáticos** (dispositivo, IP, logs, analítica anónima).
+- **Cookies/almacenamiento local** cuando aplique.
+
+## Uso de la información
+- Prestar, mantener y mejorar el servicio.
+- Personalizar la experiencia.
+- Analítica de uso (en forma agregada).
+- Cumplimiento legal.
+
+## Base legal y consentimiento
+El tratamiento se basa en la ejecución del servicio, interés legítimo y/o su consentimiento, según corresponda.
+
+## Compartición
+No vendemos datos personales. Solo compartimos con proveedores necesarios (encargados) bajo contratos de confidencialidad.
+
+## Seguridad
+Aplicamos cifrado en tránsito, controles de acceso y prácticas de minimización de datos.
+
+## Sus derechos
+Puede ejercer derechos ARCO y retirar consentimientos escribiendo a [correo@empresa.com].
+
+## Retención
+Conservamos los datos solo el tiempo necesario y conforme a obligaciones legales.
+
+## Cambios
+Publicaremos cualquier cambio relevante en esta política dentro de la app o en [URL].
+
+
+Ajusta los corchetes [] con datos reales de tu empresa. (Nota: no es asesoría legal).
+
+6) Actualiza el repositorio y ejecuta la integración
+
+En tu proyecto:
+
+git checkout -b feature/consent-privacidad
+flutter pub get
+
+git add lib/screens/register_screen.dart lib/screens/document_viewer.dart \
+        assets/docs/privacidad.md assets/docs/datos_personales.md pubspec.yaml
+git commit -m "Registro: consentimiento + viewer de documentos y versionado"
+git push origin feature/consent-privacidad
+
+
+Abre un Pull Request → revisa → merge a main.
+
+Si usas GitHub Actions, un workflow mínimo de CI para compilar:
+
+.github/workflows/flutter-ci.yml
+
+name: Flutter CI
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.24.0"
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+      - run: flutter build apk --debug
+
+
+(Ajusta versión de Flutter a la tuya.)
+
+7) Video corto de evidencia
+
+Qué debe verse (30–60 s):
+
+Abrir la app → ir a Registro.
+
+Tocar “Protección de datos personales” → se abre y se ve el contenido.
+
+Volver atrás. Tocar “Política de privacidad” → se abre y se ve el contenido.
+
+Marcar la casilla de verificación.
+
+Llenar nombre, correo y contraseña de prueba → Crear cuenta.
+
+(Opcional) Mostrar en consola/RTDB que se guardó el consentimiento con versión y fecha.
+
+Cómo grabarlo (Android Studio):
+
+Emulador: More… → Record and Playback → Start Recording → Stop (guarda .mp4).
+
+Dispositivo físico: en Android 11+ desliza y usa Screen Record o usa adb shell screenrecord /sdcard/registro.mp4.
+
+Nombra el archivo: equipoX-consentimiento-registro.mp4.
+
+8) Subir documentación del equipo
+
+En tu carpeta de equipo (Drive/Repo/Plataforma):
+
+datos_personales.md
+
+privacidad.md
+
+capturas/ (opcional: screenshots)
+
+equipoX-consentimiento-registro.mp4 (video)
+
+README-evidencia.md con:
+
+versión de documentos,
+
+hash/commit que introduce la pantalla,
+
+capturas,
+
+breve nota de cómo se guarda el consentimiento (ruta RTDB, campos y ejemplo JSON).
+
+Ejemplo de JSON guardado en RTDB (para el README):
+
+{
+  "users": {
+    "UID_EJEMPLO": {
+      "consents": {
+        "accepted": true,
+        "acceptedAt": "2025-10-20T13:45:12.345Z",
+        "privacyPolicyVersion": "1.0 (2025-10-20)",
+        "dataProtectionVersion": "1.0 (2025-10-20)"
+      }
+    }
+  }
+}
+
+9) Checklist rápido (para no olvidar nada)
+
+ Los dos documentos están en /assets/docs/ y se abren al tocar.
+
+ Hay casilla de aceptación y el botón se habilita al marcarla.
+
+ Se guarda consentimiento (fecha ISO8601 UTC + versiones) en RTDB.
+
+ Commit/PR con título y descripción claros.
+
+ Video mostrando clic en ambos textos, toggle de casilla y registro.
+
+ Documentación subida en la carpeta del equipo (MD + video + README).
