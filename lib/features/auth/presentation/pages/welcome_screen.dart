@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/colors.dart';
 import '../../../../core/constants/strings.dart';
 import '../../../../shared/widgets/custom_button.dart';
-import '../../../../shared/widgets/logo_widget.dart';
+//import '../../../../shared/widgets/logo_widget.dart';
 import 'login_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
