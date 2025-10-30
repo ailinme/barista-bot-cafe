@@ -1,4 +1,4 @@
-﻿# OWASP Mobile Top 10 Mapping
+﻿# OWASP Mobile Top 10 Mapping.
 
 - M1 Improper Platform Usage
   - Control: Centralizar permisos JIT y evitar APIs inseguras
