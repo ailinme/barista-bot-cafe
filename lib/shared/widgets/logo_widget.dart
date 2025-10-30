@@ -7,11 +7,11 @@ class LogoWidget extends StatelessWidget {
   final String? subtitle;
 
   const LogoWidget({
-    Key? key,
+    super.key,
     this.size = 120,
     this.showText = true,
     this.subtitle,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,5 @@
 # Aviso sobre Protección de Datos Personales
-**Versión:** 1.0 — 20/oct/2025
+**Versión:** 1.0 - 20/oct/2025
 
 ## 1. Identidad y domicilio del Responsable
 [barista_bot_cafe/tienda_online], con domicilio en [San Juan del Río, Querétaro], es responsable del tratamiento de sus datos personales.

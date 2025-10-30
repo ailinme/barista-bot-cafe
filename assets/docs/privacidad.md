@@ -1,5 +1,5 @@
 # Política de Privacidad
-**Versión:** 1.0 — 20/oct/2025
+**Versión:** 1.0 - 20/oct/2025
 
 ## Alcance
 Esta política describe cómo recabamos, usamos y protegemos su información cuando usa nuestra app.

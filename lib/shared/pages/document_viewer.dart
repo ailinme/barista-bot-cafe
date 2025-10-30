@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:flutter_markdown/flutter_markdown.dart';
+// Renderizado sin paquetes externos: se muestra el texto plano.
 
 class DocumentViewerPage extends StatefulWidget {
   final String title;
@@ -50,9 +50,14 @@ class _DocumentViewerPageState extends State<DocumentViewerPage> {
           ? Center(child: Text(_error!))
           : _content.isEmpty
               ? const Center(child: CircularProgressIndicator())
-              : Markdown(
-                  data: _content,
+              : Padding(
                   padding: const EdgeInsets.all(16),
+                  child: SingleChildScrollView(
+                    child: SelectableText(
+                      _content,
+                      style: const TextStyle(height: 1.4),
+                    ),
+                  ),
                 ),
     );
   }

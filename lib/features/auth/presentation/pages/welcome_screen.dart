@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/colors.dart';
 import '../../../../core/constants/strings.dart';
 import '../../../../shared/widgets/custom_button.dart';
-import '../../../../shared/widgets/logo_widget.dart';
 import 'login_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
-  const WelcomeScreen({Key? key}) : super(key: key);
+  const WelcomeScreen({super.key});
 
   @override
   State<WelcomeScreen> createState() => _WelcomeScreenState();
@@ -189,3 +188,4 @@ class OnboardingData {
     required this.icon,
   });
 }
+

@@ -9,13 +9,13 @@ class CustomButton extends StatelessWidget {
   final Color? textColor;
 //defone los parametros de los botones
   const CustomButton({
-    Key? key,
+    super.key,
     required this.text,
     this.onPressed,
     this.isLoading = false,
     this.backgroundColor,
     this.textColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

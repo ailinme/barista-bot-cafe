@@ -1,0 +1,75 @@
+PASO A PASO – Verificación de cambios (Cliente + Servidor local + TLS/pinning)
+
+1) Requisitos
+- Flutter SDK instalado y dispositivo Android físico o emulador (o Windows Desktop).
+- Nota: No usar Web (Chrome). Este proyecto usa sqlite3/FFI y dart:io (no compatibles con Flutter Web).
+- PowerShell con permisos para instalar herramientas si usas OpenSSL/mkcert (opcional).
+
+2) Instalar dependencias y correr pruebas
+- flutter pub get
+- flutter analyze   (verás solo avisos “info” no bloqueantes)
+- flutter test      (todas las pruebas deben pasar)
+
+3) Ejecutar la app en dispositivo/emulador o desktop
+- Listar dispositivos: flutter devices
+- Android físico: activar Depuración USB, conectar y aceptar huella RSA.
+- Ejecutar: flutter run -d <DEVICE_ID>
+- En debug, el servidor local arranca en:
+  - HTTPS: https://localhost:8443 (si existen PEM en assets/certs)
+  - Fallback HTTP: http://localhost:8080 (si NO existen PEM)
+
+4) (Opcional pero recomendado) Configurar TLS local
+- Opción A – OpenSSL (sin mkcert):
+  1. Instala OpenSSL (Windows): choco install openssl -y
+  2. Genera certificado y clave para localhost:
+     openssl req -x509 -newkey rsa:2048 -nodes -keyout localhost_key.pem -out localhost_cert.pem -days 365 -subj "/CN=localhost"
+  3. Copia los archivos a:
+     assets/certs/localhost_cert.pem
+     assets/certs/localhost_key.pem
+  4. Ejecuta: flutter pub get
+
+- Opción B – mkcert (si lo tienes):
+  1. choco install mkcert -y
+  2. mkcert -install
+  3. mkcert localhost 127.0.0.1 ::1
+  4. Renombra a los mismos nombres en assets/certs/ y flutter pub get
+
+5) Obtener huella (DER SHA-256) y activar pinning
+- Ejecuta la app (flutter run)
+- En la pantalla de Login pulsa: “Obtener huella (DER SHA-256)”
+- Copia el Base64 mostrado y pégalo en:
+  - lib/core/network/auth_service.dart (const pins para localhost)
+  - lib/core/network/api_service.dart (const pins para localhost)
+- Guarda cambios y vuelve a ejecutar la app.
+
+6) Probar flujo TLS/pinning y API segura
+- En Login pulsa: “Probar perfil (TLS/pinning)”.
+  - Debe mostrar un JSON de /me (rol y email)
+  - Si cambias el certificado, el pinning debe fallar (evidencia de M5).
+
+7) Probar validación, registro y login
+- Registro:
+  - Completa los campos (valida nombre/email/teléfono/contraseña).
+  - Acepta términos. Se solicitarán Notificaciones (JIT); si deniegas, se muestra un aviso y la app degrada funcionalidad sin crashear.
+- Login:
+  - Ingresa con el usuario creado. Hay RateLimiter en cliente; demasiados intentos fallidos bloquean temporalmente.
+
+8) Dónde ver el código y documentación de seguridad
+- Validación/saneamiento: lib/core/security/validators.dart
+- Sesión + secretos seguros: lib/core/security/session_manager.dart, lib/core/security/secret_store.dart
+- TLS + pinning + cliente HTTP: lib/core/network/secure_http_client.dart, lib/core/network/api_service.dart
+- Servidor local (bcrypt, AES-GCM, JWT corto + refresh, roles/scopes, rate-limit):
+  - lib/server/security.dart, lib/server/db.dart, lib/server/local_server.dart
+- Permisos JIT: lib/core/permissions/permission_service.dart
+- Documentación y mapeos: docs/security.md, docs/owasp_mapping.md, docs/masvs_checklist.md, docs/sbom.md
+
+9) CI y evidencias
+- CI: .github/workflows/flutter.yml, ci/scripts/setup.sh, ci/scripts/test.sh
+- Pruebas unitarias: test/*.dart
+- Paso a paso (este archivo): docs/paso_a_paso_verificacion.txt
+
+10) Notas y solución de problemas
+- Error en Web (Chrome) por sqlite3/FFI: ejecuta en Android/Windows (no Web).
+- Si no hay PEM en assets/certs/, el servidor usa HTTP:8080 (para no bloquearte). Para “Excelente” en M5, usa TLS y pinning.
+- TLS local en desarrollo acepta el certificado de localhost, pero valida pinning en el cliente (asegura que el cert esperado coincida por huella). Esto es solo para demo local.
+- Si OpenSSL/mkcert no están disponibles, usa el botón “Obtener huella” tras colocar PEMs para recuperar la huella desde la app.

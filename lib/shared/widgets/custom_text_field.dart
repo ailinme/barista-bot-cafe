@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../core/constants/colors.dart';
 
 class CustomTextField extends StatefulWidget {
@@ -8,16 +9,24 @@ class CustomTextField extends StatefulWidget {
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
   final Widget? prefixIcon;
+  final List<TextInputFormatter>? inputFormatters;
+  final Iterable<String>? autofillHints;
+  final ValueChanged<String>? onChanged;
+  final bool trimOnChange;
 
   const CustomTextField({
-    Key? key,
+    super.key,
     required this.hintText,
     this.controller,
     this.isPassword = false,
     this.keyboardType = TextInputType.text,
     this.validator,
     this.prefixIcon,
-  }) : super(key: key);
+    this.inputFormatters,
+    this.autofillHints,
+    this.onChanged,
+    this.trimOnChange = false,
+  });
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -32,7 +41,19 @@ class _CustomTextFieldState extends State<CustomTextField> {
       controller: widget.controller,
       obscureText: widget.isPassword ? _isObscured : false,
       keyboardType: widget.keyboardType,
+      inputFormatters: widget.inputFormatters,
+      autofillHints: widget.autofillHints,
       validator: widget.validator,
+      onChanged: (text) {
+        final value = widget.trimOnChange ? text.trim() : text;
+        if (widget.trimOnChange && widget.controller != null && value != text) {
+          final selectionIndex = value.length;
+          widget.controller!
+            ..text = value
+            ..selection = TextSelection.collapsed(offset: selectionIndex);
+        }
+        widget.onChanged?.call(value);
+      },
       style: const TextStyle(fontSize: 16),
       decoration: InputDecoration(
         hintText: widget.hintText,

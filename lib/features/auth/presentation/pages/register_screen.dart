@@ -1,14 +1,20 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+
 import 'package:barista_bot_cafe/shared/pages/document_viewer.dart';
 import '../../../../core/constants/colors.dart';
 import '../../../../core/constants/strings.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/logo_widget.dart';
+import '../../../../core/security/validators.dart';
+import '../../../../core/permissions/permission_service.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({Key? key}) : super(key: key);
+  const RegisterScreen({super.key});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -32,7 +38,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  void _register() {
+  Future<void> _register() async {
     if (!_acceptTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -44,26 +50,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
-
-      // Simular registro (aquí irá la lógica real después)
-      Future.delayed(const Duration(seconds: 2), () {
-        setState(() {
-          _isLoading = false;
-        });
-        
+      setState(() => _isLoading = true);
+      // Solicitar notificaciones JIT con degradación funcional.
+      final granted = await PermissionService.requestNotificationsJIT();
+      if (!granted && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('¡Cuenta creada exitosamente!'),
-            backgroundColor: AppColors.success,
+            content: Text('Notificaciones desactivadas. Puedes habilitarlas luego.'),
+            backgroundColor: AppColors.textSecondary,
           ),
         );
-        
-        // Volver al login
+      }
+
+      try {
+        // Verificar inicialización de Firebase (especialmente en Web)
+        final cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+        final uid = cred.user?.uid;
+        if (uid != null) {
+          final db = FirebaseDatabase.instance.ref('users/$uid');
+          await db.set({
+            'fullName': _nameController.text.trim(),
+            'email': _emailController.text.trim(),
+            'phone': _phoneController.text.trim(),
+            'createdAt': ServerValue.timestamp,
+          });
+        }
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Cuenta creada exitosamente'), backgroundColor: AppColors.success),
+        );
         Navigator.of(context).pop();
-      });
+      } on FirebaseAuthException catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message ?? 'Error al crear la cuenta'), backgroundColor: AppColors.error),
+        );
+      } on FirebaseException catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message ?? 'Firebase no está inicializado'), backgroundColor: AppColors.error),
+        );
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ocurrió un error al crear la cuenta'), backgroundColor: AppColors.error),
+        );
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -87,14 +124,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               key: _formKey,
               child: Column(
                 children: [
-                  // Logo
-                  const LogoWidget(
-                    size: 100,
-                    showText: false,
-                  ),
+                  const LogoWidget(size: 100, showText: false),
                   const SizedBox(height: 32),
-                  
-                  // Tarjeta blanca con el formulario
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -111,7 +142,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Título
                         Text(
                           AppStrings.registerTitle,
                           style: const TextStyle(
@@ -129,76 +159,55 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                         const SizedBox(height: 32),
-                        
-                        // Campo de Nombre
+
+                        // Nombre completo
                         CustomTextField(
                           hintText: AppStrings.fullName,
                           controller: _nameController,
                           prefixIcon: const Icon(Icons.person_outline),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Por favor ingresa tu nombre';
-                            }
-                            return null;
-                          },
+                          autofillHints: const [AutofillHints.name],
+                          validator: Validators.name,
                         ),
                         const SizedBox(height: 16),
-                        
-                        // Campo de Email
+
+                        // Correo electrónico
                         CustomTextField(
                           hintText: AppStrings.email,
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           prefixIcon: const Icon(Icons.email_outlined),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Por favor ingresa tu correo';
-                            }
-                            if (!value.contains('@')) {
-                              return 'Ingresa un correo válido';
-                            }
-                            return null;
-                          },
+                          autofillHints: const [AutofillHints.email],
+                          trimOnChange: true,
+                          validator: Validators.email,
                         ),
                         const SizedBox(height: 16),
-                        
-                        // Campo de Teléfono
+
+                        // Teléfono
                         CustomTextField(
                           hintText: AppStrings.phone,
                           controller: _phoneController,
                           keyboardType: TextInputType.phone,
                           prefixIcon: const Icon(Icons.phone_outlined),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Por favor ingresa tu teléfono';
-                            }
-                            if (value.length < 10) {
-                              return 'Ingresa un teléfono válido';
-                            }
-                            return null;
-                          },
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(15),
+                          ],
+                          validator: Validators.phone,
                         ),
                         const SizedBox(height: 16),
-                        
-                        // Campo de Contraseña
+
+                        // Contraseña
                         CustomTextField(
                           hintText: AppStrings.password,
                           controller: _passwordController,
                           isPassword: true,
                           prefixIcon: const Icon(Icons.lock_outline),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Por favor ingresa tu contraseña';
-                            }
-                            if (value.length < 6) {
-                              return 'La contraseña debe tener al menos 6 caracteres';
-                            }
-                            return null;
-                          },
+                          autofillHints: const [AutofillHints.newPassword],
+                          validator: Validators.password,
                         ),
                         const SizedBox(height: 16),
 
-                        // Enlaces a documentos de privacidad y datos personales
+                        // Enlaces a documentos
                         Align(
                           alignment: Alignment.centerLeft,
                           child: RichText(
@@ -253,39 +262,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Checkbox de términos
+                        // Aceptar términos
                         Row(
                           children: [
                             Checkbox(
                               value: _acceptTerms,
-                              onChanged: (value) {
-                                setState(() {
-                                  _acceptTerms = value ?? false;
-                                });
-                              },
+                              onChanged: (value) => setState(() => _acceptTerms = value ?? false),
                               activeColor: AppColors.primary,
                             ),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _acceptTerms = !_acceptTerms;
-                                  });
-                                },
-                                child: const Text(
-                                  AppStrings.acceptTerms,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
+                            const Expanded(
+                              child: Text(
+                                AppStrings.acceptTerms,
+                                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 24),
-                        
-                        // Botón de Registro
+
+                        // Botón de registro
                         CustomButton(
                           text: AppStrings.register,
                           onPressed: _register,
@@ -295,22 +290,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Link para iniciar sesión
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
                         '¿Ya tienes cuenta? ',
-                        style: TextStyle(
-                          color: AppColors.textLight,
-                          fontSize: 16,
-                        ),
+                        style: TextStyle(color: AppColors.textLight, fontSize: 16),
                       ),
                       GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pop();
-                        },
+                        onTap: () => Navigator.of(context).pop(),
                         child: const Text(
                           'Inicia sesión',
                           style: TextStyle(
