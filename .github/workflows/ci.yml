@@ -1,0 +1,46 @@
+name: CI Pipeline - Barista Bot Flutter
+run-name: CI triggered by @${{ github.actor }} on ${{ github.ref }}
+
+# Este workflow configura un pipeline de CI para una aplicación Flutter.
+# Incluye pasos para configurar Flutter, obtener dependencias, analizar código,
+# ejecutar tests y construir artefactos para Android e iOS.
+
+on:
+  push:
+    branches: [ main, develop, master ]
+  pull_request:
+    branches: [ main, develop, master ]
+  workflow_dispatch:
+
+jobs:
+  ci_pipeline:
+    name: Flutter CI Pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Analyze code
+        run: flutter analyze
+
+      - name: Run unit tests
+        run: flutter test
+
+      - name: Build APK (Release)
+        run: flutter build apk --release
+        continue-on-error: true
+
+      - name: Build iOS (Release)
+        run: flutter build ios --release --no-codesign
+        continue-on-error: true
