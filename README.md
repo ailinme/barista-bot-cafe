@@ -1,3 +1,5 @@
+![CI](https://github.com/${{ github.repository }}/actions/workflows/flutter-ci.yml/badge.svg)
+
 # barista_bot_cafe
 
 A new Flutter project.
@@ -27,4 +29,3 @@ samples, guidance on mobile development, and a full API reference.
   - Ejecutar la app en Android/Windows.
   - Configurar TLS/pinning y validar permisos JIT.
   - Validar registro/login y rate limiting.
-

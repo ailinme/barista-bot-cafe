@@ -168,7 +168,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           decoration: BoxDecoration(
             color: _currentPage == index
                 ? AppColors.primary
-                : AppColors.textSecondary.withOpacity(0.3),
+                : AppColors.textSecondary.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(4),
           ),
         ),
@@ -188,4 +188,3 @@ class OnboardingData {
     required this.icon,
   });
 }
-
