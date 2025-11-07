@@ -6,7 +6,7 @@ import '../../../../shared/widgets/logo_widget.dart';
 import 'welcome_screen.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -20,7 +20,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    
     // Configurar animaciones
     _animationController = AnimationController(
       vsync: this,

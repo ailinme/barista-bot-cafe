@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "270429816401",
+    "firebase_url": "https://barista-bot-cafe-default-rtdb.firebaseio.com",
+    "project_id": "barista-bot-cafe",
+    "storage_bucket": "barista-bot-cafe.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:270429816401:android:2c506bb554bed831715a70",
+        "android_client_info": {
+          "package_name": "com.example.barista_bot_cafe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxjPeBU0OnGI-uW9KBprkxFHp0CVJuu88"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

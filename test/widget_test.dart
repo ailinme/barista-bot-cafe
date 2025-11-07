@@ -11,20 +11,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:barista_bot_cafe/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('App loads SplashScreen', (WidgetTester tester) async {
+    // Ajusta el tamao de la ventana para evitar overflow en tests
+    tester.binding.window.physicalSizeTestValue = const Size(1080, 1920);
+    tester.binding.window.devicePixelRatioTestValue = 1.0;
+    addTearDown(() {
+      tester.binding.window.clearPhysicalSizeTestValue();
+      tester.binding.window.clearDevicePixelRatioTestValue();
+    });
     await tester.pumpWidget(const MyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Se renderiza la app y muestra el splash con el logo/texto
+    expect(find.byType(MaterialApp), findsOneWidget);
+    expect(find.text('BaristaBot'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Avanza el tiempo para permitir que el Timer del SplashScreen expire
+    await tester.pump(const Duration(seconds: 4));
+    await tester.pumpAndSettle();
   });
 }
