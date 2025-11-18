@@ -1,0 +1,63 @@
+﻿Evaluación de cumplimiento – Rúbrica de Codificación Segura
+
+Criterio 1: Validación y saneamiento (cliente/servidor)
+- Estado: Cumplido (cliente)
+- Evidencia: lib/core/security/validators.dart; uso en UI en login/registro; pruebas en test/validators_test.dart
+- Por qué: Se valida y sanea email/teléfono/nombre/contraseña; mensajes claros en español. Pruebas cubren casos básicos.
+- (imagen: validators.dart con reglas de email/teléfono/contraseña)
+- (imagen: formulario de Registro con errores de validación visibles)
+
+Criterio 2: Autenticación y autorización robusta
+- Estado: Bueno (cliente con Firebase)
+- Evidencia: FirebaseAuth en login/registro; lib/core/security/rate_limiter.dart; navegación a Home
+- Por qué: Se usa Firebase Auth (tokens y expiración gestionados). En cliente mantenemos rate‑limit. MFA/proveedores/claims/roles configurables en Firebase.
+- (imagen: Snackbar “Inicio de sesión exitoso” y Home)
+- (imagen: Firebase Console → Authentication → Usuarios con el usuario creado)
+
+Criterio 3: Gestión segura de secretos
+- Estado: Cumplido (móvil)
+- Evidencia: lib/core/security/secret_store.dart; inicialización en lib/main.dart
+- Por qué: En móvil se usa Keychain/Keystore vía flutter_secure_storage; no hay secretos hardcodeados; en Web no se persiste información sensible.
+- (imagen: fragmento de SecureStorageStore con FlutterSecureStorage)
+
+Criterio 4: Criptografía moderna en cliente
+- Estado: Parcial
+- Evidencia: Tránsito seguro + pinning (ver Criterio 7). Secretos cifrados por el sistema en reposo.
+- Por qué: No se guarda PII fuera de secure storage; AES‑GCM se agregaría si se persisten más datos sensibles.
+- (imagen: código de secure_http_client.dart mostrando verificación SHA‑256)
+
+Criterio 5: Protección en servidor
+- Estado: Cumplido vía servicio gestionado
+- Evidencia: Firebase Auth/Realtime Database (hash y cifrado en reposo gestionados por la plataforma)
+- Por qué: Firebase gestiona credenciales y cifrado; las reglas minimizan exposición.
+- (imagen: Firebase Console → Authentication y Realtime Database)
+
+Criterio 6: Permisos y privacidad (JIT, degradación)
+- Estado: Cumplido
+- Evidencia: lib/core/permissions/permission_service.dart; flujo en register_screen.dart; assets/docs/*.md
+- Por qué: Solicitud JIT de notificaciones y degradación si se deniega; documentos de privacidad incluidos.
+- (imagen: diálogo de permisos de notificaciones y aviso “Notificaciones desactivadas”)
+
+Criterio 7: Seguridad en tránsito (M5)
+- Estado: Cumplido (cliente)
+- Evidencia: lib/core/network/secure_http_client.dart; lib/core/network/api_service.dart; lib/core/network/auth_service.dart
+- Por qué: Solo HTTPS y pinning SHA‑256 del certificado (DER) configurable; timeouts.
+- (imagen: ApiService forzando https y cliente con pinning)
+
+Criterio 8: Mapeo OWASP Mobile Top 10
+- Estado: Parcial
+- Evidencia: docs/owasp_mapping.md
+- Por qué: M1, M2, M5, M8, M9 mapeados; faltan evidencias runtime para M8/M9 más allá de recomendaciones.
+- (imagen: extracto del mapeo resaltado)
+
+Criterio 9: Documentación técnica y evidencias
+- Estado: Parcial/Bueno
+- Evidencia: docs/security.md; docs/masvs_checklist.md; tests; CI
+- Por qué: Documentación y checklist presentes; faltan capturas/logs y evidencias de backend.
+- (imagen: terminal con flutter analyze y flutter test; CI en verde)
+
+Criterio 10: Calidad del código y CI
+- Estado: Parcial/Bueno
+- Evidencia: analysis_options.yaml; .github/workflows/flutter.yml; tests
+- Por qué: Lints y CI activos; se puede ampliar con análisis estático adicional o SBOM.
+- (imagen: workflow de GitHub Actions exitoso)

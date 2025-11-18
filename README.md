@@ -1,3 +1,5 @@
+![CI](https://github.com/${{ github.repository }}/actions/workflows/flutter-ci.yml/badge.svg)
+
 # barista_bot_cafe
 
 A new Flutter project.

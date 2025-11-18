@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/colors.dart';
 import '../../../../core/constants/strings.dart';
 import '../../../../shared/widgets/custom_button.dart';
-//import '../../../../shared/widgets/logo_widget.dart';
 import 'login_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
-  const WelcomeScreen({Key? key}) : super(key: key);
+  const WelcomeScreen({super.key});
 
   @override
   State<WelcomeScreen> createState() => _WelcomeScreenState();
@@ -23,13 +22,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       icon: Icons.coffee,
     ),
     OnboardingData(
-      title: 'Ordena fácilmente',
-      description: 'Personaliza tu café favorito con solo unos toques',
+      title: 'Ordena focilmente',
+      description: 'Personaliza tu caf? favorito con solo unos toques',
       icon: Icons.touch_app,
     ),
     OnboardingData(
       title: 'Recoge y disfruta',
-      description: 'Tu pedido estará listo cuando llegues. Sin esperas',
+      description: 'Tu pedido estaro listo cuando llegues. Sin esperas',
       icon: Icons.check_circle,
     ),
   ];
@@ -50,15 +49,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
-                },
+                onPageChanged: (index) => setState(() => _currentPage = index),
                 itemCount: _pages.length,
-                itemBuilder: (context, index) {
-                  return _buildPage(_pages[index]);
-                },
+                itemBuilder: (context, index) => _buildPage(_pages[index]),
               ),
             ),
             _buildIndicator(),
@@ -169,7 +162,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           decoration: BoxDecoration(
             color: _currentPage == index
                 ? AppColors.primary
-                : AppColors.textSecondary.withOpacity(0.3),
+                : AppColors.textSecondary.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(4),
           ),
         ),
