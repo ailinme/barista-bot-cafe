@@ -1,15 +1,15 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../../../../core/constants/colors.dart';
-import '../../../../core/constants/strings.dart';
-import '../../../../shared/widgets/custom_button.dart';
-import '../../../../shared/widgets/custom_text_field.dart';
-import '../../../../shared/widgets/logo_widget.dart';
-import 'register_screen.dart';
-import '../../../home/presentation/pages/home_screen.dart';
-import '../../../../core/security/validators.dart';
-import '../../../../core/security/rate_limiter.dart';
+import 'package:barista_bot_cafe/core/constants/colors.dart';
+import 'package:barista_bot_cafe/core/constants/strings.dart';
+import 'package:barista_bot_cafe/shared/widgets/custom_button.dart';
+import 'package:barista_bot_cafe/shared/widgets/custom_text_field.dart';
+import 'package:barista_bot_cafe/shared/widgets/logo_widget.dart';
+import 'package:barista_bot_cafe/features/auth/presentation/pages/register_screen.dart';
+import 'package:barista_bot_cafe/features/home/presentation/pages/home_screen.dart';
+import 'package:barista_bot_cafe/core/security/validators.dart';
+import 'package:barista_bot_cafe/core/security/rate_limiter.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _loginSecure() async {
     if (_rateLimiter.isLocked) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Demasiados intentos. Intenta más tarde.'), backgroundColor: AppColors.error),
+        const SnackBar(content: Text('Demasiados intentos. Intenta mas tarde.'), backgroundColor: AppColors.error),
       );
       return;
     }
@@ -49,23 +49,18 @@ class _LoginScreenState extends State<LoginScreen> {
         if (!mounted) return;
         _rateLimiter.registerAttempt(success: true);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Inicio de sesión exitoso'), backgroundColor: AppColors.success),
+          const SnackBar(content: Text('Inicio de sesion exitoso'), backgroundColor: AppColors.success),
         );
         Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
-      } on FirebaseAuthException catch (e) {
+      } on FirebaseAuthException {
         _rateLimiter.registerAttempt(success: false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message ?? 'Error de autenticación'), backgroundColor: AppColors.error),
+          const SnackBar(content: Text('Credenciales incorrectas'), backgroundColor: AppColors.error),
         );
-      } on FirebaseException catch (e) {
+      } catch (_) {
         _rateLimiter.registerAttempt(success: false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message ?? 'Firebase no está inicializado'), backgroundColor: AppColors.error),
-        );
-      } catch (e) {
-        _rateLimiter.registerAttempt(success: false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ocurrió un error al iniciar sesión'), backgroundColor: AppColors.error),
+          const SnackBar(content: Text('Ocurrio un error al iniciar sesion'), backgroundColor: AppColors.error),
         );
       } finally {
         if (mounted) setState(() => _isLoading = false);
@@ -78,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.secondary,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -87,24 +82,25 @@ class _LoginScreenState extends State<LoginScreen> {
               key: _formKey,
               child: Column(
                 children: [
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 32),
                   const LogoWidget(size: 120, showText: false),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 32),
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 20, offset: const Offset(0, 10)),
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.textSecondary.withOpacity(0.12)),
+                      boxShadow: const [
+                        BoxShadow(color: Color(0x22000000), blurRadius: 14, offset: Offset(0, 10)),
                       ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(AppStrings.loginTitle, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                        const Text(AppStrings.loginTitle, style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textLight)),
                         const SizedBox(height: 8),
-                        Text(AppStrings.loginSubtitle, style: const TextStyle(fontSize: 16, color: AppColors.textSecondary)),
+                        const Text(AppStrings.loginSubtitle, style: TextStyle(fontSize: 16, color: AppColors.textSecondary)),
                         const SizedBox(height: 32),
                         CustomTextField(
                           hintText: AppStrings.email,
@@ -122,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           isPassword: true,
                           prefixIcon: const Icon(Icons.lock_outline),
                           autofillHints: const [AutofillHints.password],
-                          validator: Validators.password,
+                          validator: Validators.passwordLogin,
                         ),
                         const SizedBox(height: 24),
                         CustomButton(text: AppStrings.login, onPressed: _loginSecure, isLoading: _isLoading),
@@ -133,12 +129,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('¿No tienes cuenta? ', style: TextStyle(color: AppColors.textLight, fontSize: 16)),
+                      const Text('No tienes cuenta? ', style: TextStyle(color: AppColors.textLight, fontSize: 16)),
                       GestureDetector(
                         onTap: () {
                           Navigator.of(context).push(MaterialPageRoute(builder: (context) => const RegisterScreen()));
                         },
-                        child: const Text('Regístrate', style: TextStyle(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.bold)),
+                        child: const Text('Registrate', style: TextStyle(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
@@ -152,4 +148,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-

@@ -1,6 +1,6 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:barista_bot_cafe/core/security/session_manager.dart';
 import 'package:barista_bot_cafe/core/security/secret_store.dart';
+import 'package:barista_bot_cafe/core/security/session_manager.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('SessionManager issues and rotates tokens', () async {

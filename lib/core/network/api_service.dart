@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'secure_http_client.dart';
+import 'package:barista_bot_cafe/core/network/secure_http_client.dart';
 
 class ApiService {
   final String baseUrl;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../core/constants/colors.dart';
+import 'package:barista_bot_cafe/core/constants/colors.dart';
 
 class CustomTextField extends StatefulWidget {
   final String hintText;

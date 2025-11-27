@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../features/home/presentation/home_screen.dart';
-import '../../features/products/presentation/product_detail_screen.dart';
-import '../../features/cart/presentation/cart_screen.dart'; 
-import '../../features/chat/presentation/ai_chat_screen.dart';
-import '../../features/loyalty/presentation/loyalty_screen.dart'; 
-import '../../features/orders/presentation/order_tracking_screen.dart';
+import 'package:barista_bot_cafe/features/home/presentation/home_screen.dart';
+import 'package:barista_bot_cafe/features/products/presentation/product_detail_screen.dart';
+import 'package:barista_bot_cafe/features/cart/presentation/cart_screen.dart'; 
+import 'package:barista_bot_cafe/features/chat/presentation/ai_chat_screen.dart';
+import 'package:barista_bot_cafe/features/loyalty/presentation/loyalty_screen.dart'; 
+import 'package:barista_bot_cafe/features/orders/presentation/order_tracking_screen.dart';
 
 
 class AppRoutes {

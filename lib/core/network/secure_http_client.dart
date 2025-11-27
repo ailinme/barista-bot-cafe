@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+
+import 'package:crypto/crypto.dart' as crypto;
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
-import 'package:crypto/crypto.dart' as crypto;
 
 /// HttpClient con TLS forzado, timeouts y pinning de certificado por SPKI (SHA-256 Base64).
 class SecureHttpClient {

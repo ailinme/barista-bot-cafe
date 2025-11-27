@@ -1,9 +1,12 @@
+﻿import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
-import '../../../../core/constants/colors.dart';
-import '../../../../core/constants/strings.dart';
-import '../../../../shared/widgets/logo_widget.dart';
-import 'welcome_screen.dart';
+
+import 'package:barista_bot_cafe/core/constants/colors.dart';
+import 'package:barista_bot_cafe/core/constants/strings.dart';
+import 'package:barista_bot_cafe/shared/widgets/logo_widget.dart';
+import 'package:barista_bot_cafe/features/home/presentation/pages/home_screen.dart';
+import 'package:barista_bot_cafe/features/auth/presentation/pages/welcome_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -20,7 +23,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    // Configurar animaciones
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -40,13 +42,22 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       ),
     );
 
-    // Iniciar animación
     _animationController.forward();
 
-    // Navegar a Welcome Screen después de 3 segundos
+    // Navegar a Welcome o Home según sesión después de 3 segundos
     Timer(const Duration(seconds: 3), () {
+      if (!mounted) return;
+      Widget target = const WelcomeScreen();
+      try {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          target = const HomeScreen();
+        }
+      } catch (_) {
+        target = const WelcomeScreen();
+      }
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+        MaterialPageRoute(builder: (context) => target),
       );
     });
   }

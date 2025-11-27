@@ -1,17 +1,17 @@
-import 'package:flutter/gestures.dart';
+﻿import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 import 'package:barista_bot_cafe/shared/pages/document_viewer.dart';
-import '../../../../core/constants/colors.dart';
-import '../../../../core/constants/strings.dart';
-import '../../../../shared/widgets/custom_button.dart';
-import '../../../../shared/widgets/custom_text_field.dart';
-import '../../../../shared/widgets/logo_widget.dart';
-import '../../../../core/security/validators.dart';
-import '../../../../core/permissions/permission_service.dart';
+import 'package:barista_bot_cafe/core/constants/colors.dart';
+import 'package:barista_bot_cafe/core/constants/strings.dart';
+import 'package:barista_bot_cafe/shared/widgets/custom_button.dart';
+import 'package:barista_bot_cafe/shared/widgets/custom_text_field.dart';
+import 'package:barista_bot_cafe/shared/widgets/logo_widget.dart';
+import 'package:barista_bot_cafe/core/security/validators.dart';
+import 'package:barista_bot_cafe/core/permissions/permission_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -42,7 +42,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!_acceptTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Debes aceptar los términos y condiciones'),
+          content: Text('Debes aceptar los terminos y condiciones'),
           backgroundColor: AppColors.error,
         ),
       );
@@ -51,7 +51,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
-      // Solicitar notificaciones JIT con degradación funcional.
       final granted = await PermissionService.requestNotificationsJIT();
       if (!granted && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -63,7 +62,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
 
       try {
-        // Verificar inicialización de Firebase (especialmente en Web)
         final cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text,
@@ -88,15 +86,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.message ?? 'Error al crear la cuenta'), backgroundColor: AppColors.error),
         );
-      } on FirebaseException catch (e) {
+      } catch (_) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message ?? 'Firebase no está inicializado'), backgroundColor: AppColors.error),
-        );
-      } catch (e) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ocurrió un error al crear la cuenta'), backgroundColor: AppColors.error),
+          const SnackBar(content: Text('Ocurrio un error al crear la cuenta'), backgroundColor: AppColors.error),
         );
       } finally {
         if (mounted) setState(() => _isLoading = false);
@@ -107,7 +100,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.secondary,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -129,38 +122,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.textSecondary.withOpacity(0.12)),
+                      boxShadow: const [
+                        BoxShadow(color: Color(0x22000000), blurRadius: 14, offset: Offset(0, 10)),
                       ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          AppStrings.registerTitle,
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
+                        const Text(AppStrings.registerTitle, style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textLight)),
                         const SizedBox(height: 8),
-                        Text(
-                          AppStrings.registerSubtitle,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
+                        const Text(AppStrings.registerSubtitle, style: TextStyle(fontSize: 16, color: AppColors.textSecondary)),
                         const SizedBox(height: 32),
-
-                        // Nombre completo
                         CustomTextField(
                           hintText: AppStrings.fullName,
                           controller: _nameController,
@@ -169,8 +144,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           validator: Validators.name,
                         ),
                         const SizedBox(height: 16),
-
-                        // Correo electrónico
                         CustomTextField(
                           hintText: AppStrings.email,
                           controller: _emailController,
@@ -181,8 +154,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           validator: Validators.email,
                         ),
                         const SizedBox(height: 16),
-
-                        // Teléfono
                         CustomTextField(
                           hintText: AppStrings.phone,
                           controller: _phoneController,
@@ -195,8 +166,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           validator: Validators.phone,
                         ),
                         const SizedBox(height: 16),
-
-                        // Contraseña
                         CustomTextField(
                           hintText: AppStrings.password,
                           controller: _passwordController,
@@ -206,30 +175,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           validator: Validators.password,
                         ),
                         const SizedBox(height: 16),
-
-                        // Enlaces a documentos
                         Align(
                           alignment: Alignment.centerLeft,
                           child: RichText(
                             text: TextSpan(
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: AppColors.textSecondary,
-                              ),
+                              style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
                               children: [
                                 const TextSpan(text: 'Revisa: '),
                                 TextSpan(
-                                  text: 'Protección de datos personales',
-                                  style: const TextStyle(
-                                    color: AppColors.primary,
-                                    decoration: TextDecoration.underline,
-                                  ),
+                                  text: 'Proteccion de datos personales',
+                                  style: const TextStyle(color: AppColors.primary, decoration: TextDecoration.underline),
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () {
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
                                           builder: (_) => const DocumentViewerPage(
-                                            title: 'Protección de datos personales',
+                                            title: 'Proteccion de datos personales',
                                             assetPath: 'assets/docs/datos_personales.md',
                                           ),
                                         ),
@@ -238,17 +199,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                                 const TextSpan(text: ' y '),
                                 TextSpan(
-                                  text: 'Política de privacidad',
-                                  style: const TextStyle(
-                                    color: AppColors.primary,
-                                    decoration: TextDecoration.underline,
-                                  ),
+                                  text: 'Politica de privacidad',
+                                  style: const TextStyle(color: AppColors.primary, decoration: TextDecoration.underline),
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () {
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
                                           builder: (_) => const DocumentViewerPage(
-                                            title: 'Política de privacidad',
+                                            title: 'Politica de privacidad',
                                             assetPath: 'assets/docs/privacidad.md',
                                           ),
                                         ),
@@ -261,8 +219,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-
-                        // Aceptar términos
                         Row(
                           children: [
                             Checkbox(
@@ -271,44 +227,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               activeColor: AppColors.primary,
                             ),
                             const Expanded(
-                              child: Text(
-                                AppStrings.acceptTerms,
-                                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
-                              ),
+                              child: Text(AppStrings.acceptTerms, style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
                             ),
                           ],
                         ),
                         const SizedBox(height: 24),
-
-                        // Botón de registro
-                        CustomButton(
-                          text: AppStrings.register,
-                          onPressed: _register,
-                          isLoading: _isLoading,
-                        ),
+                        CustomButton(text: AppStrings.register, onPressed: _register, isLoading: _isLoading),
                       ],
                     ),
                   ),
                   const SizedBox(height: 24),
-
-                  // Link para iniciar sesión
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        '¿Ya tienes cuenta? ',
-                        style: TextStyle(color: AppColors.textLight, fontSize: 16),
-                      ),
+                      const Text('Ya tienes cuenta? ', style: TextStyle(color: AppColors.textLight, fontSize: 16)),
                       GestureDetector(
                         onTap: () => Navigator.of(context).pop(),
-                        child: const Text(
-                          'Inicia sesión',
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        child: const Text('Inicia sesion', style: TextStyle(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
@@ -322,4 +257,3 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
-

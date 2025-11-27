@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import '../models/order.dart'; // ← AGREGAR ESTE IMPORT
+import 'package:barista_bot_cafe/models/order.dart'; // ← AGREGAR ESTE IMPORT
 
 class LocalStorageService {
   // Guardar carrito

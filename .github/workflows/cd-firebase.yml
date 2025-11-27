@@ -1,0 +1,54 @@
+name: CD Flutter -> Firebase App Distribution
+
+on:
+  push:
+    branches: [ "main" ]   # CD en cada push a main
+  workflow_dispatch:        # y también disparable manualmente
+
+jobs:
+  cd_android_firebase:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # 1) Configurar Flutter (igual que en tu CI actual)
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "stable"
+          channel: "stable"
+          cache: true
+
+      # 2) Configurar Java para Android
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      # 3) Instalar dependencias de Flutter
+      - name: Flutter pub get
+        run: flutter pub get
+
+      # 4) Configurar Ruby + Bundler para fastlane
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+
+      - name: Bundle install (fastlane + plugin)
+        run: bundle install
+
+      # 5) Exportar variables de entorno desde Secrets
+      - name: Export env vars for Firebase
+        run: |
+          echo "FIREBASE_APP_ID_ANDROID=${{ secrets.FIREBASE_APP_ID_ANDROID }}" >> $GITHUB_ENV
+          echo "FIREBASE_TOKEN=${{ secrets.FIREBASE_TOKEN }}" >> $GITHUB_ENV
+
+      # 6) Ejecutar la lane de CD (build + distribución)
+      - name: Build & Distribute APK to Firebase App Distribution
+        run: bundle exec fastlane cd_firebase
+ 

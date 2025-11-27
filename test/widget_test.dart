@@ -5,19 +5,19 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'package:barista_bot_cafe/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:barista_bot_cafe/main.dart';
-
 void main() {
   testWidgets('App loads SplashScreen', (WidgetTester tester) async {
-    // Ajusta el tamao de la ventana para evitar overflow en tests
-    tester.binding.window.physicalSizeTestValue = const Size(1080, 1920);
-    tester.binding.window.devicePixelRatioTestValue = 1.0;
+    // Ajusta el tamaño de la ventana para evitar overflow en tests
+    final view = tester.view;
+    view.physicalSize = const Size(1080, 1920);
+    view.devicePixelRatio = 1.0;
     addTearDown(() {
-      tester.binding.window.clearPhysicalSizeTestValue();
-      tester.binding.window.clearDevicePixelRatioTestValue();
+      view.resetPhysicalSize();
+      view.resetDevicePixelRatio();
     });
     await tester.pumpWidget(const MyApp());
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoyaltyScreen extends StatefulWidget {
-  const LoyaltyScreen({Key? key}) : super(key: key);
+  const LoyaltyScreen({super.key});
 
   @override
   State<LoyaltyScreen> createState() => _LoyaltyScreenState();
@@ -190,7 +190,7 @@ class _LoyaltyScreenState extends State<LoyaltyScreen> {
                       ),
                     ),
                     const SizedBox(height: 15),
-                    ...rewards.map((reward) => _buildRewardItem(reward)).toList(),
+                    ...rewards.map((reward) => _buildRewardItem(reward)),
                   ],
                 ),
               ),

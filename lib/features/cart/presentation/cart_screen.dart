@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CartScreen extends StatefulWidget {
-  const CartScreen({Key? key}) : super(key: key);
+  const CartScreen({super.key});
 
   @override
   State<CartScreen> createState() => _CartScreenState();
@@ -107,7 +107,7 @@ class _CartScreenState extends State<CartScreen> {
                           final index = entry.key;
                           final item = entry.value;
                           return _buildCartItem(item, index);
-                        }).toList(),
+                        }),
 
                         const SizedBox(height: 20),
 

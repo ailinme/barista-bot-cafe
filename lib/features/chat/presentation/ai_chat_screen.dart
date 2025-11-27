@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class AIChatScreen extends StatefulWidget {
-  const AIChatScreen({Key? key}) : super(key: key);
+  const AIChatScreen({super.key});
 
   @override
   State<AIChatScreen> createState() => _AIChatScreenState();

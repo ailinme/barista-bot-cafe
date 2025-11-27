@@ -1,0 +1,57 @@
+Resumen amplio de la app y lo realizado
+
+1) Qué es la app y estructura base
+- Proyecto Flutter para Android/iOS (web no soporta pago con WebView), con Firebase (Auth + Realtime DB).
+- Estructura lógica:
+  - lib/features/home: menús, carrito, estado de pedido, historial, perfil.
+  - lib/features/auth: splash, login, register, welcome.
+  - backend/: servidor Node (Express) para pagos con Mercado Pago.
+  - docs/: notas y guías (payments.md, instrucciones_uso.txt, este resumen).
+
+2) Flujo inicial (antes de cambios)
+- Selección de productos, carrito, botón “Confirmar pedido” que guardaba pedido en Firebase sin pago.
+- Estado de pedido mostraba viñetas/íconos simples.
+- Sin historial persistente de pedidos; sin pagos; precios en USD.
+
+3) Cambios y mejoras principales
+- Pagos con Mercado Pago (MXN):
+  - Backend nuevo (Express + SDK MP v2) en backend/server.js, usando MERCADOPAGO_ACCESS_TOKEN (sandbox en backend/.env).
+  - Endpoint POST /payments/create_preference crea preferencia y devuelve init_point.
+  - Webhook opcional /payments/webhook marca pagos aprobados en Firebase si recibe notificación.
+  - CartScreen ahora llama al backend, abre WebView de Mercado Pago; solo si el pago se aprueba se crea el pedido con paymentStatus/paymentMethod/paymentId/preferenceId.
+  - PaymentApi configurado con dart-define PAYMENTS_BASE_URL (por defecto localhost en web/desktop y 10.0.2.2 en Android si no se pasa define).
+  - Un producto “Latte” cuesta $1 MXN para pruebas.
+- Animación y estado de pedido:
+  - Pantalla de estado renovada con línea animada alimentada por API pública de café (badge “Datos API” cuando llega la data).
+  - Se removieron trazos que se deformaban; UI en fondo oscuro.
+- Historial global y repetición:
+  - Historial se guarda en Firebase (OrderHistoryRepository/Store), accesible desde app bar.
+  - “Repetir” abre confirmación con opción de editar en carrito antes de relanzar.
+  - Se quitó historial dentro de la pantalla de estado (solo global).
+- Carrito:
+  - Botón Editar por producto que abre personalización con los datos precargados.
+  - Precios y textos en MXN.
+- Perfil:
+  - Pantalla para editar nombre/teléfono y opción de eliminar cuenta.
+- Tema/UI:
+  - Fondo oscuro consistente; navegación corregida; botón de guardar en carrito; flecha de regreso.
+
+4) Comparativa con requerimientos.txt / requerimientos2.txt
+- Pagos: ahora se cumple “proceso de pago” antes de crear pedido, con integración real de Mercado Pago.
+- Persistencia/seguridad: pedidos solo si pago aprobado; se almacenan campos de pago (status, método, id); token MP en env, no en código.
+- Animaciones: estado de pedido con línea/onda de API externa (pedido “novedoso” solicitado).
+- Historial/repetición: implementado global, con confirmación y edición.
+- UX/flujo: dark theme, edición en carrito, navegación, perfil, precios MXN.
+
+5) Archivos clave creados/modificados
+- Backend: backend/server.js, backend/.env (token sandbox), backend/package.json.
+- Flutter pagos: lib/features/home/data/payment_api.dart, lib/features/home/presentation/pages/payment_webview.dart, lib/features/home/presentation/pages/cart_screen.dart, lib/features/home/data/order_repository.dart.
+- Animación/estado: lib/features/home/presentation/pages/order_status_screen.dart.
+- Menú y precios MXN: lib/features/home/data/menu_repository.dart.
+- Historial/Perfil: lib/features/home/presentation/pages/home_screen.dart, lib/features/home/presentation/pages/profile_screen.dart.
+- Documentación: docs/payments.md, instrucciones_uso.txt, resumen_implementacion.txt.
+
+6) Visión actual
+- App Flutter: seleccionar bebidas, personalizar, carrito editable, pagar con Mercado Pago, estado con animación, historial y repetir pedidos, perfil y eliminación de cuenta.
+- Backend Node: preferencia de pago, webhook opcional, accesible en red local (0.0.0.0:8080).
+- Limitación: Web (Chrome) no soporta el flujo de pago con WebView; usar Android/iOS. Frontend muestra mensaje de fallo si se intenta en web.

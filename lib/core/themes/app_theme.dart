@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../constants/colors.dart';
+import 'package:barista_bot_cafe/core/constants/colors.dart';
 
 class AppTheme {
   static ThemeData get lightTheme {
@@ -7,13 +7,20 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primary,
-        brightness: Brightness.light,
+        brightness: Brightness.dark,
+        background: AppColors.background,
+        surface: AppColors.surface,
       ),
       scaffoldBackgroundColor: AppColors.background,
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(color: AppColors.textPrimary),
+        iconTheme: IconThemeData(color: AppColors.textLight),
+        titleTextStyle: TextStyle(
+          color: AppColors.textLight,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(

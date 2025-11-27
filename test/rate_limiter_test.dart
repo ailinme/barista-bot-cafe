@@ -1,5 +1,5 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:barista_bot_cafe/core/security/rate_limiter.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('RateLimiter locks after max attempts within window', () async {

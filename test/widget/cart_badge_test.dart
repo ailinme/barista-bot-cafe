@@ -97,10 +97,10 @@ class CartBadge extends StatelessWidget {
   final VoidCallback? onTap;
 
   const CartBadge({
-    Key? key,
+    super.key,
     required this.itemCount,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

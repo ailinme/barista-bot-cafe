@@ -1,0 +1,22 @@
+default_platform(:android)
+
+platform :android do
+  # Lane de CD para Firebase App Distribution
+  desc "Construye APK debug de barista-bot-cafe y lo sube a Firebase App Distribution"
+  lane :cd_firebase do
+    # 1) Construir el APK debug de Flutter
+    #    Usa el mismo comando/path que tu workflow de CI actual.
+    sh("flutter build apk --debug")
+
+    # 2) Distribuir a testers vía Firebase App Distribution
+    firebase_app_distribution(
+      app: ENV["FIREBASE_APP_ID_ANDROID"],     # Lo pones en GitHub Secrets
+      firebase_cli_token: ENV["FIREBASE_TOKEN"], # Token de Firebase CLI (también secret)
+      android_artifact_type: "APK",
+      android_artifact_path: "build/app/outputs/flutter-apk/app-debug.apk",
+      release_notes: "Build automática desde GitHub Actions (barista-bot-cafe)",
+      testers: "ricardo.ortiz.gtz.00@gmail.com",   
+      groups: "qa"                                      # <-- o el alias de grupo que uses en Firebase
+    )
+  end
+end

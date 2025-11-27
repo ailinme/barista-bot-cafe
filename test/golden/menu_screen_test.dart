@@ -92,7 +92,7 @@ void main() {
     });
 
     testGoldens('MenuScreen tema claro y oscuro', (tester) async {
-      final menuScreen = const MenuScreenWrapper();
+      const menuScreen = MenuScreenWrapper();
 
       final builder = GoldenBuilder.column()
         ..addScenario(
@@ -154,9 +154,9 @@ void main() {
         )
         ..addScenario(
           'Deshabilitado',
-          ElevatedButton(
+          const ElevatedButton(
             onPressed: null,
-            child: const Text('Agregar'),
+            child: Text('Agregar'),
           ),
         )
         ..addScenario(
@@ -176,15 +176,15 @@ void main() {
 
 // WRAPPERS Y WIDGETS DE EJEMPLO - Ajusta según tu app
 class MenuScreenWrapper extends StatelessWidget {
-  const MenuScreenWrapper({Key? key}) : super(key: key);
+  const MenuScreenWrapper({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Menú'),
-        actions: [
-          const CartBadge(itemCount: 2),
+        actions: const [
+          CartBadge(itemCount: 2),
         ],
       ),
       body: GridView.count(
@@ -213,7 +213,7 @@ class MenuScreenWrapper extends StatelessWidget {
 }
 
 class CartScreenEmpty extends StatelessWidget {
-  const CartScreenEmpty({Key? key}) : super(key: key);
+  const CartScreenEmpty({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -234,7 +234,7 @@ class CartScreenEmpty extends StatelessWidget {
 }
 
 class CartScreenWithItems extends StatelessWidget {
-  const CartScreenWithItems({Key? key}) : super(key: key);
+  const CartScreenWithItems({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -286,14 +286,14 @@ class Coffee {
 class ProductCard extends StatelessWidget {
   final Coffee coffee;
 
-  const ProductCard({Key? key, required this.coffee}) : super(key: key);
+  const ProductCard({super.key, required this.coffee});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: Column(
         children: [
-          Icon(Icons.coffee, size: 50),
+          const Icon(Icons.coffee, size: 50),
           Text(coffee.name),
           Text('\$${coffee.price}'),
           if (coffee.description != null) Text(coffee.description!),
@@ -306,7 +306,7 @@ class ProductCard extends StatelessWidget {
 class CartBadge extends StatelessWidget {
   final int itemCount;
 
-  const CartBadge({Key? key, required this.itemCount}) : super(key: key);
+  const CartBadge({super.key, required this.itemCount});
 
   @override
   Widget build(BuildContext context) {

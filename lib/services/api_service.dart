@@ -1,8 +1,8 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/product.dart'; // ← AGREGAR ESTE IMPORT
-import '../models/order.dart';   // ← AGREGAR ESTE IMPORT
+import 'package:barista_bot_cafe/models/product.dart'; // ← AGREGAR ESTE IMPORT
+import 'package:barista_bot_cafe/models/order.dart';   // ← AGREGAR ESTE IMPORT
 
 class ApiService {
   static const String baseUrl = 'YOUR_API_URL_HERE';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/colors.dart';
+import 'package:barista_bot_cafe/core/constants/colors.dart';
 
 class LogoWidget extends StatelessWidget {
   final double size;

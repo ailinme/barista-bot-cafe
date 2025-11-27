@@ -154,10 +154,10 @@ class ProductCard extends StatelessWidget {
   final VoidCallback? onAddToCart;
 
   const ProductCard({
-    Key? key,
+    super.key,
     required this.coffee,
     this.onAddToCart,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

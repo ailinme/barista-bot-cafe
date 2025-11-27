@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'secret_store.dart';
+import 'package:barista_bot_cafe/core/security/secret_store.dart';
 
 class SessionManager {
   SessionManager._internal();

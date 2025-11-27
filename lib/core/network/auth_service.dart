@@ -1,4 +1,4 @@
-import 'api_service.dart';
+import 'package:barista_bot_cafe/core/network/api_service.dart';
 
 class AuthService {
   // Configura tu URL de backend HTTPS

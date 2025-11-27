@@ -4,7 +4,7 @@ import 'dart:async';
 class OrderTrackingScreen extends StatefulWidget {
   final String orderId;
 
-  const OrderTrackingScreen({Key? key, required this.orderId}) : super(key: key);
+  const OrderTrackingScreen({super.key, required this.orderId});
 
   @override
   State<OrderTrackingScreen> createState() => _OrderTrackingScreenState();
@@ -23,21 +23,21 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> with SingleTi
       'time': '9:41 AM',
       'completed': true,
       'icon': Icons.check_circle,
-      'color': Color(0xFF27AE60),
+      'color': const Color(0xFF27AE60),
     },
     {
       'title': 'En preparación',
       'time': 'Tiempo estimado: 5 min',
       'completed': false,
       'icon': Icons.access_time,
-      'color': Color(0xFFF39C12),
+      'color': const Color(0xFFF39C12),
     },
     {
       'title': 'Listo para recoger',
       'time': 'Te notificaremos',
       'completed': false,
       'icon': Icons.coffee,
-      'color': Color(0xFFBDC3C7),
+      'color': const Color(0xFFBDC3C7),
     },
   ];
 
@@ -250,7 +250,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> with SingleTi
                         step,
                         isLast: index == orderSteps.length - 1,
                       );
-                    }).toList(),
+                    }),
                   ],
                 ),
               ),
